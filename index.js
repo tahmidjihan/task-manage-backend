@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
 
 require('dotenv').config();
@@ -74,6 +74,7 @@ async function run() {
       res.send(result);
     });
     app.delete('/DELETE/tasks/:id', async (req, res) => {
+      const tasksCollection = client.db('TaskManage').collection('tasks');
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await tasksCollection.deleteOne(query);
