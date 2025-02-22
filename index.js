@@ -41,10 +41,11 @@ async function run() {
       );
       res.send(result);
     });
-    app.put('/PUT/tasks', async (req, res) => {
+    app.put('/PUT/tasks/:id', async (req, res) => {
       const tasksCollection = client.db('TaskManage').collection('tasks');
       const task = req.body;
-      const query = { email: user.email };
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
       const options = { upsert: true };
       const result = await tasksCollection.updateOne(
         query,
@@ -60,7 +61,24 @@ async function run() {
       console.log(task);
       res.send(result);
     });
+    app.get('/GET/tasks', async (req, res) => {
+      const email = req.query.email;
+      const tasksCollection = client.db('TaskManage').collection('tasks');
+      if (email) {
+        const result = await tasksCollection.find({ email: email }).toArray();
+        res.send(result);
+        return;
+      }
 
+      const result = await tasksCollection.find().toArray();
+      res.send(result);
+    });
+    app.delete('/DELETE/tasks/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await tasksCollection.deleteOne(query);
+      res.send(result);
+    });
     await client.db('admin').command({ ping: 1 });
     console.log(
       'Pinged your deployment. You successfully connected to MongoDB!'
